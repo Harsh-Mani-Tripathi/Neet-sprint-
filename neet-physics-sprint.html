@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NEET Physics — 21 Day Sprint</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --card: #16161f;
+    --border: #1e1e2e;
+    --accent1: #ff4d6d;
+    --accent2: #f7b731;
+    --accent3: #38d9a9;
+    --accent4: #74c0fc;
+    --accent5: #da77f2;
+    --text: #e8e8f0;
+    --muted: #6b6b8a;
+    --done-bg: #0f1f18;
+    --done-border: #1a3a2a;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    padding: 24px 16px 60px;
+  }
+
+  /* noise texture overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.4;
+  }
+
+  .wrap { position: relative; z-index: 1; max-width: 480px; margin: 0 auto; }
+
+  /* ── HEADER ── */
+  header { margin-bottom: 32px; }
+
+  .header-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--accent1);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+
+  h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(48px, 14vw, 72px);
+    line-height: 0.9;
+    color: var(--text);
+    letter-spacing: 1px;
+  }
+
+  h1 span { color: var(--accent1); }
+
+  .sub {
+    font-size: 13px;
+    color: var(--muted);
+    margin-top: 10px;
+    line-height: 1.5;
+  }
+
+  .exam-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,77,109,0.12);
+    border: 1px solid rgba(255,77,109,0.3);
+    color: var(--accent1);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 1px;
+    margin-top: 12px;
+  }
+
+  .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent1); animation: pulse 1.5s ease-in-out infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;} 50%{opacity:0.3;} }
+
+  /* ── PROGRESS BAR ── */
+  .progress-wrap { margin-bottom: 28px; }
+  .progress-label { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); margin-bottom: 6px; font-family: 'DM Mono', monospace; }
+  .progress-bar { height: 3px; background: var(--border); border-radius: 2px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent1), var(--accent2)); border-radius: 2px; transition: width 0.5s ease; }
+
+  /* ── PHASE LABEL ── */
+  .phase-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 28px 0 12px;
+  }
+
+  .phase-tag {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 13px;
+    letter-spacing: 2px;
+    padding: 3px 10px;
+    border-radius: 4px;
+  }
+
+  .phase-line { flex: 1; height: 1px; background: var(--border); }
+
+  /* ── DAY CARD ── */
+  .day-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .day-card::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 3px;
+    border-radius: 12px 0 0 12px;
+  }
+
+  .day-card.done {
+    background: var(--done-bg);
+    border-color: var(--done-border);
+  }
+
+  .day-card.done::before { background: var(--accent3); }
+
+  .day-card.active { border-color: rgba(255,77,109,0.5); background: #1a1016; }
+  .day-card.active::before { background: var(--accent1); }
+
+  .day-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+  }
+
+  .day-left { display: flex; align-items: center; gap: 10px; }
+
+  .day-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 22px;
+    line-height: 1;
+    color: var(--muted);
+    min-width: 32px;
+  }
+
+  .day-card.done .day-num { color: var(--accent3); }
+  .day-card.active .day-num { color: var(--accent1); }
+
+  .day-info {}
+  .day-date { font-size: 10px; color: var(--muted); font-family: 'DM Mono', monospace; letter-spacing: 0.5px; }
+  .day-title { font-size: 14px; font-weight: 600; color: var(--text); margin-top: 1px; }
+  .day-card.done .day-title { color: var(--muted); text-decoration: line-through; text-decoration-color: var(--accent3); }
+
+  .chapter-chip {
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 20px;
+    font-family: 'DM Mono', monospace;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .check-btn {
+    width: 28px; height: 28px;
+    border-radius: 50%;
+    border: 1.5px solid var(--border);
+    background: transparent;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+    transition: all 0.2s;
+    color: transparent;
+    font-size: 13px;
+  }
+
+  .day-card.done .check-btn {
+    background: var(--accent3);
+    border-color: var(--accent3);
+    color: #0a0a0f;
+  }
+
+  /* expanded details */
+  .day-details {
+    display: none;
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid var(--border);
+  }
+
+  .day-card.expanded .day-details { display: block; }
+
+  .detail-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+    align-items: flex-start;
+  }
+
+  .detail-icon {
+    font-size: 13px;
+    margin-top: 1px;
+    flex-shrink: 0;
+  }
+
+  .detail-text { font-size: 12.5px; color: #a0a0c0; line-height: 1.5; }
+  .detail-text strong { color: var(--text); font-weight: 600; }
+
+  .pyq-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: rgba(247,183,49,0.1);
+    border: 1px solid rgba(247,183,49,0.25);
+    color: var(--accent2);
+    border-radius: 4px;
+    padding: 2px 7px;
+    font-size: 10px;
+    font-family: 'DM Mono', monospace;
+    margin-top: 8px;
+  }
+
+  /* ── CHAPTER COLORS ── */
+  .ch-modern { background: rgba(218,119,242,0.12); color: var(--accent5); border: 1px solid rgba(218,119,242,0.2); }
+  .ch-optics  { background: rgba(116,192,252,0.12); color: var(--accent4); border: 1px solid rgba(116,192,252,0.2); }
+  .ch-current { background: rgba(247,183,49,0.12);  color: var(--accent2); border: 1px solid rgba(247,183,49,0.2); }
+  .ch-electro { background: rgba(255,77,109,0.12);  color: var(--accent1); border: 1px solid rgba(255,77,109,0.2); }
+  .ch-mag     { background: rgba(56,217,169,0.12);  color: var(--accent3); border: 1px solid rgba(56,217,169,0.2); }
+  .ch-mock    { background: rgba(255,255,255,0.06);  color: #aaa;           border: 1px solid rgba(255,255,255,0.1); }
+
+  /* phase colors */
+  .phase-modern { background: rgba(218,119,242,0.15); color: var(--accent5); }
+  .phase-optics  { background: rgba(116,192,252,0.15); color: var(--accent4); }
+  .phase-current { background: rgba(247,183,49,0.15);  color: var(--accent2); }
+  .phase-electro { background: rgba(255,77,109,0.15);  color: var(--accent1); }
+  .phase-mag     { background: rgba(56,217,169,0.15);  color: var(--accent3); }
+  .phase-mock    { background: rgba(255,255,255,0.08);  color: #aaa; }
+
+  /* ── DAILY ROUTINE CARD ── */
+  .routine-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 28px;
+  }
+
+  .routine-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 18px;
+    letter-spacing: 1px;
+    margin-bottom: 12px;
+    color: var(--muted);
+  }
+
+  .routine-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+
+  .routine-time {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--accent2);
+    min-width: 55px;
+  }
+
+  .routine-task { font-size: 13px; color: #a0a0c0; }
+
+  /* ── FOOTER RULE ── */
+  .rule-card {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px;
+    margin-top: 24px;
+  }
+
+  .rule-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 16px;
+    letter-spacing: 1px;
+    color: var(--muted);
+    margin-bottom: 10px;
+  }
+
+  .rule-item {
+    display: flex; gap: 8px; align-items: flex-start;
+    margin-bottom: 8px;
+    font-size: 12.5px;
+    color: #a0a0c0;
+    line-height: 1.5;
+  }
+
+  .rule-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 15px;
+    color: var(--accent1);
+    min-width: 16px;
+  }
+
+  .bio-anchor {
+    background: rgba(56,217,169,0.08);
+    border: 1px solid rgba(56,217,169,0.2);
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-top: 14px;
+    font-size: 12px;
+    color: var(--accent3);
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    line-height: 1.5;
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- HEADER -->
+  <header>
+    <div class="header-label">Harsh · NEET 2026</div>
+    <h1>21 DAY<br><span>SPRINT</span></h1>
+    <p class="sub">Physics · High ROI chapters only<br>Blank → Battle-ready</p>
+    <div class="exam-badge"><div class="dot"></div>NEET · 03 MAY 2026</div>
+  </header>
+
+  <!-- PROGRESS -->
+  <div class="progress-wrap">
+    <div class="progress-label"><span>PROGRESS</span><span id="prog-text">0 / 21 days</span></div>
+    <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+  </div>
+
+  <!-- DAILY ROUTINE -->
+  <div class="routine-card">
+    <div class="routine-title">DAILY STRUCTURE (3 hrs)</div>
+    <div class="routine-row"><div class="routine-time">60 min</div><div class="routine-task">📺 One-shot video at 1.5× speed</div></div>
+    <div class="routine-row"><div class="routine-time">90 min</div><div class="routine-task">📝 PYQs from that chapter (last 10 yrs)</div></div>
+    <div class="routine-row"><div class="routine-time">30 min</div><div class="routine-task">📋 Build / review formula sheet</div></div>
+    <div class="bio-anchor">🌿 <span>9 PM Bio anchor (45 min) stays every single day — CUET is your real target.</span></div>
+  </div>
+
+  <!-- DAYS -->
+  <div id="days-container"></div>
+
+  <!-- RULES -->
+  <div class="rule-card">
+    <div class="rule-title">THE 3 LAWS</div>
+    <div class="rule-item"><div class="rule-num">1</div><div>PYQs over theory. Solve the last 10 years chapter-by-chapter — they tell you exactly what to know.</div></div>
+    <div class="rule-item"><div class="rule-num">2</div><div>One A4 formula sheet per chapter. Formulas + exceptions only. Revise every morning.</div></div>
+    <div class="rule-item"><div class="rule-num">3</div><div>Never deep-dive Mechanics. If it looks easy in the mock, attempt it — otherwise skip and move.</div></div>
+  </div>
+
+</div>
+
+<script>
+const START = new Date('2026-04-13');
+
+const days = [
+  // Modern Physics — Days 1–4
+  { phase:'MODERN PHYSICS', phaseClass:'phase-modern', chClass:'ch-modern',
+    title:'Photoelectric Effect + de Broglie', chip:'Modern Physics',
+    video:'Alakh Sir — Dual Nature of Matter (PW YouTube)',
+    topics:'Einstein\'s PEE equation · Work function · Threshold frequency · de Broglie wavelength',
+    pyq:'20 PYQs on photoelectric effect' },
+  { phase:null, phaseClass:'phase-modern', chClass:'ch-modern',
+    title:'Bohr\'s Model + Hydrogen Spectrum', chip:'Modern Physics',
+    video:'Alakh Sir — Atoms Ch 12 One Shot (PW YouTube)',
+    topics:'Bohr postulates · Energy levels · Spectral series (Balmer focus) · Rydberg formula',
+    pyq:'20 PYQs on Bohr\'s model' },
+  { phase:null, phaseClass:'phase-modern', chClass:'ch-modern',
+    title:'Nuclei — Radioactive Decay + Half-Life', chip:'Modern Physics',
+    video:'Alakh Sir — Nuclei Ch 13 One Shot (PW YouTube)',
+    topics:'α β γ decay · Half-life · N=N₀(1/2)ⁿ · Binding energy · Mass defect',
+    pyq:'20 PYQs on radioactivity & nuclei' },
+  { phase:null, phaseClass:'phase-modern', chClass:'ch-modern',
+    title:'Semiconductors + Logic Gates', chip:'Modern Physics',
+    video:'Alakh Sir — Semiconductor Devices (PW YouTube)',
+    topics:'p-n junction · Diode · Zener · LED · Logic gates (AND/OR/NOT/NAND) · Truth tables',
+    pyq:'15 PYQs on semiconductors — mostly memory-based, fast to solve' },
+
+  // Ray Optics — Days 5–8
+  { phase:'RAY OPTICS', phaseClass:'phase-optics', chClass:'ch-optics',
+    title:'Mirrors — Reflection + Formula', chip:'Ray Optics',
+    video:'Alakh Sir — Ray Optics Part 1 (PW YouTube)',
+    topics:'Mirror formula · Magnification · Sign convention · Concave vs convex uses',
+    pyq:'20 PYQs on mirrors' },
+  { phase:null, phaseClass:'phase-optics', chClass:'ch-optics',
+    title:'Refraction + Snell\'s Law + TIR', chip:'Ray Optics',
+    video:'Alakh Sir — Ray Optics Part 2 (PW YouTube)',
+    topics:'Snell\'s law · Critical angle · Total Internal Reflection · Optical fibre · Lateral shift',
+    pyq:'20 PYQs on refraction & TIR' },
+  { phase:null, phaseClass:'phase-optics', chClass:'ch-optics',
+    title:'Lenses — Thin Lens Formula + Power', chip:'Ray Optics',
+    video:'Continue Alakh Sir Ray Optics (PW YouTube)',
+    topics:'Lens formula · Magnification · Power of lens · Lens maker\'s equation · Combination of lenses',
+    pyq:'20 PYQs on lenses' },
+  { phase:null, phaseClass:'phase-optics', chClass:'ch-optics',
+    title:'Prism + Optical Instruments + Mixed PYQ Day', chip:'Ray Optics',
+    video:'Alakh Sir — Prism + Instruments (PW YouTube)',
+    topics:'Prism: angle of deviation · minimum deviation · Microscope · Telescope · Eye defects',
+    pyq:'30 mixed Ray Optics PYQs — full chapter revision' },
+
+  // Current Electricity — Days 9–13
+  { phase:'CURRENT ELECTRICITY', phaseClass:'phase-current', chClass:'ch-current',
+    title:'Ohm\'s Law + Resistance + Drift Velocity', chip:'Current Elec.',
+    video:'Alakh Sir — Current Electricity Part 1 (PW YouTube)',
+    topics:'Ohm\'s law · Resistivity · Temperature dependence · Drift velocity · Mobility',
+    pyq:'20 PYQs on resistance & Ohm\'s law' },
+  { phase:null, phaseClass:'phase-current', chClass:'ch-current',
+    title:'Series & Parallel Circuits', chip:'Current Elec.',
+    video:'Continue Part 1 / Part 2',
+    topics:'Series & parallel combinations · EMF · Internal resistance · Terminal voltage · Cell combinations',
+    pyq:'20 numerical PYQs on circuit combinations' },
+  { phase:null, phaseClass:'phase-current', chClass:'ch-current',
+    title:'Kirchhoff\'s Laws', chip:'Current Elec.',
+    video:'Alakh Sir — Current Electricity Part 2 (PW YouTube)',
+    topics:'KCL · KVL · Loop method · Junction rule · Complex circuit solving',
+    pyq:'20 PYQs — Kirchhoff\'s circuits' },
+  { phase:null, phaseClass:'phase-current', chClass:'ch-current',
+    title:'Wheatstone Bridge + Potentiometer', chip:'Current Elec.',
+    video:'Alakh Sir — Current Electricity Part 3 (PW YouTube)',
+    topics:'Balanced Wheatstone bridge · Meter bridge · Potentiometer principle · EMF comparison',
+    pyq:'20 PYQs on bridge & potentiometer' },
+  { phase:null, phaseClass:'phase-current', chClass:'ch-current',
+    title:'Current Electricity — Full Chapter Blitz', chip:'Current Elec.',
+    video:'No new video — revision day',
+    topics:'Review all formula sheets from Days 9–12. Identify weak sub-topics.',
+    pyq:'40 mixed Current Electricity PYQs — timed (90 min)' },
+
+  // Electrostatics — Days 14–17
+  { phase:'ELECTROSTATICS', phaseClass:'phase-electro', chClass:'ch-electro',
+    title:'Coulomb\'s Law + Electric Field', chip:'Electrostatics',
+    video:'Alakh Sir — Electric Charges & Fields (PW YouTube)',
+    topics:'Coulomb\'s law · Superposition · E due to point charge · Dipole · Field lines',
+    pyq:'20 PYQs on E-field' },
+  { phase:null, phaseClass:'phase-electro', chClass:'ch-electro',
+    title:'Gauss\'s Law + Applications', chip:'Electrostatics',
+    video:'Continue Electric Charges & Fields (PW YouTube)',
+    topics:'Gauss\'s law · E due to sphere, cylinder, plane · Conductor properties',
+    pyq:'15 PYQs on Gauss\'s law' },
+  { phase:null, phaseClass:'phase-electro', chClass:'ch-electro',
+    title:'Electric Potential + Capacitors', chip:'Electrostatics',
+    video:'Alakh Sir — Electrostatic Potential & Capacitance (PW YouTube)',
+    topics:'Potential · Potential energy · Capacitor formula · Series/parallel · Energy stored · Dielectric',
+    pyq:'20 PYQs on capacitors' },
+  { phase:null, phaseClass:'phase-electro', chClass:'ch-electro',
+    title:'Electrostatics — Full Chapter Blitz', chip:'Electrostatics',
+    video:'No new video — revision day',
+    topics:'Review formula sheets. Especially capacitor combinations — they appear every year.',
+    pyq:'35 mixed Electrostatics PYQs — timed (90 min)' },
+
+  // Magnetism + AC — Days 18–19
+  { phase:'MAGNETISM + AC', phaseClass:'phase-mag', chClass:'ch-mag',
+    title:'Moving Charges + Magnetism Basics', chip:'Magnetism',
+    video:'Alakh Sir — Moving Charges & Magnetism (PW YouTube)',
+    topics:'Biot-Savart · Ampere\'s law · Force on current · Solenoid · Toroid · Cyclotron',
+    pyq:'20 PYQs — focus on formula application, skip derivations' },
+  { phase:null, phaseClass:'phase-mag', chClass:'ch-mag',
+    title:'Electromagnetic Induction + AC Circuits', chip:'AC / EMI',
+    video:'Alakh Sir — EMI + Alternating Current (PW YouTube)',
+    topics:'Faraday\'s law · Lenz\'s law · Motional EMF · LCR circuit · Resonance · Transformer',
+    pyq:'20 PYQs on EMI + AC' },
+
+  // Mock — Days 20–21
+  { phase:'MOCK TESTS', phaseClass:'phase-mock', chClass:'ch-mock',
+    title:'Full Mock Test #1 + Deep Analysis', chip:'Mock',
+    video:'No video — exam simulation',
+    topics:'Attempt a full NEET Physics mock under timed conditions (45 Q in 60 min). Analyse every wrong answer with its chapter and reason.',
+    pyq:'Target: 30+ correct out of 45' },
+  { phase:null, phaseClass:'phase-mock', chClass:'ch-mock',
+    title:'Full Mock Test #2 + Final Revision', chip:'Mock',
+    video:'No video — final sprint',
+    topics:'Second full mock. Then spend remaining time on formula sheets for your 2 weakest chapters. Sleep by 10 PM tonight.',
+    pyq:'Target: 32+ correct · No new topics after today' },
+];
+
+function getDateStr(offset) {
+  const d = new Date(START);
+  d.setDate(d.getDate() + offset);
+  return d.toLocaleDateString('en-IN', { day:'numeric', month:'short', weekday:'short' });
+}
+
+function loadDone() {
+  try { return JSON.parse(localStorage.getItem('neet_done') || '[]'); } catch(e) { return []; }
+}
+function saveDone(arr) {
+  try { localStorage.setItem('neet_done', JSON.stringify(arr)); } catch(e) {}
+}
+
+function render() {
+  const done = loadDone();
+  const today = new Date(); today.setHours(0,0,0,0);
+  let html = '';
+  let lastPhase = null;
+
+  days.forEach((d, i) => {
+    const dayDate = new Date(START); dayDate.setDate(dayDate.getDate() + i);
+    const isToday = dayDate.getTime() === today.getTime();
+    const isDone = done.includes(i);
+    const isExpanded = false;
+
+    if (d.phase && d.phase !== lastPhase) {
+      lastPhase = d.phase;
+      html += `<div class="phase-header">
+        <span class="phase-tag ${d.phaseClass}">${d.phase}</span>
+        <div class="phase-line"></div>
+      </div>`;
+    }
+
+    const cardClass = isDone ? 'done' : (isToday ? 'active' : '');
+
+    html += `<div class="day-card ${cardClass}" id="card-${i}" onclick="toggleCard(${i})">
+      <div class="day-top">
+        <div class="day-left">
+          <div class="day-num">${String(i+1).padStart(2,'0')}</div>
+          <div class="day-info">
+            <div class="day-date">${getDateStr(i)}${isToday ? ' · TODAY' : ''}</div>
+            <div class="day-title">${d.title}</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:8px">
+          <span class="chapter-chip ${d.chClass}">${d.chip}</span>
+          <button class="check-btn" onclick="event.stopPropagation();toggleDone(${i})">${isDone ? '✓' : ''}</button>
+        </div>
+      </div>
+      <div class="day-details">
+        <div class="detail-row"><div class="detail-icon">📺</div><div class="detail-text"><strong>Video:</strong> ${d.video}</div></div>
+        <div class="detail-row"><div class="detail-icon">📌</div><div class="detail-text"><strong>Topics:</strong> ${d.topics}</div></div>
+        <div class="pyq-badge">⚡ ${d.pyq}</div>
+      </div>
+    </div>`;
+  });
+
+  document.getElementById('days-container').innerHTML = html;
+  updateProgress(done.length);
+}
+
+function toggleCard(i) {
+  const card = document.getElementById('card-' + i);
+  card.classList.toggle('expanded');
+}
+
+function toggleDone(i) {
+  const done = loadDone();
+  const idx = done.indexOf(i);
+  if (idx === -1) done.push(i); else done.splice(idx, 1);
+  saveDone(done);
+  render();
+}
+
+function updateProgress(n) {
+  document.getElementById('prog-text').textContent = `${n} / 21 days`;
+  document.getElementById('prog-fill').style.width = (n/21*100) + '%';
+}
+
+render();
+</script>
+</body>
+</html>

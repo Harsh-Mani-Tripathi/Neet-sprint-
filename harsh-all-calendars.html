@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Harsh — All Sprints</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0a0a0f; --surface:#111118; --card:#16161f; --border:#1e1e2e;
+  --r:#ff4d6d; --y:#f7b731; --g:#38d9a9; --b:#74c0fc; --p:#da77f2; --w:#aaa;
+  --text:#e8e8f0; --muted:#6b6b8a;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;padding:0 0 60px;}
+
+/* TAB NAV */
+.tab-nav{display:flex;position:sticky;top:0;z-index:100;background:var(--bg);border-bottom:1px solid var(--border);padding:0 16px;}
+.tab-btn{flex:1;padding:14px 4px;font-family:'DM Mono',monospace;font-size:10px;letter-spacing:1.5px;text-transform:uppercase;border:none;background:transparent;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;}
+.tab-btn.active{color:var(--text);border-bottom-color:var(--r);}
+.tab-btn.t2.active{border-bottom-color:var(--g);}
+.tab-btn.t3.active{border-bottom-color:var(--b);}
+
+/* PANEL */
+.panel{display:none;padding:24px 16px;max-width:480px;margin:0 auto;}
+.panel.active{display:block;}
+
+/* HEADER */
+.header-label{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:3px;text-transform:uppercase;margin-bottom:4px;}
+h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(44px,12vw,64px);line-height:.9;letter-spacing:1px;margin-bottom:8px;}
+.sub{font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:10px;}
+.exam-badge{display:inline-flex;align-items:center;gap:6px;border-radius:20px;padding:4px 12px;font-size:10px;font-family:'DM Mono',monospace;letter-spacing:1px;margin-bottom:20px;}
+.dot{width:6px;height:6px;border-radius:50%;animation:pulse 1.5s ease-in-out infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.3;}}
+
+/* PROGRESS */
+.progress-wrap{margin-bottom:20px;}
+.progress-label{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-bottom:5px;font-family:'DM Mono',monospace;}
+.progress-bar{height:3px;background:var(--border);border-radius:2px;overflow:hidden;}
+.progress-fill{height:100%;border-radius:2px;transition:width .5s ease;}
+
+/* ROUTINE */
+.routine-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:20px;}
+.routine-title{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:1px;color:var(--muted);margin-bottom:10px;}
+.routine-row{display:flex;gap:10px;align-items:center;margin-bottom:6px;font-size:12px;}
+.routine-time{font-family:'DM Mono',monospace;font-size:10px;min-width:50px;}
+.routine-task{color:#a0a0c0;}
+.bio-anchor{background:rgba(56,217,169,.08);border:1px solid rgba(56,217,169,.2);border-radius:8px;padding:9px 11px;margin-top:10px;font-size:11.5px;color:var(--g);display:flex;gap:7px;align-items:flex-start;line-height:1.5;}
+
+/* PHASE */
+.phase-header{display:flex;align-items:center;gap:10px;margin:22px 0 10px;}
+.phase-tag{font-family:'Bebas Neue',sans-serif;font-size:12px;letter-spacing:2px;padding:3px 9px;border-radius:4px;}
+.phase-line{flex:1;height:1px;background:var(--border);}
+
+/* DAY CARD */
+.day-card{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:8px;cursor:pointer;position:relative;overflow:hidden;transition:border-color .2s,background .2s;}
+.day-card::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;border-radius:12px 0 0 12px;background:var(--border);}
+.day-card.done{background:#0e1a15;border-color:#1a3028;}
+.day-card.done::before{background:var(--g);}
+.day-card.today{border-color:rgba(255,77,109,.5);background:#1a0f15;}
+.day-card.today::before{background:var(--r);}
+.day-top{display:flex;align-items:center;justify-content:space-between;gap:8px;}
+.day-left{display:flex;align-items:center;gap:10px;}
+.day-num{font-family:'Bebas Neue',sans-serif;font-size:20px;line-height:1;color:var(--muted);min-width:28px;}
+.day-card.done .day-num{color:var(--g);}
+.day-card.today .day-num{color:var(--r);}
+.day-date{font-size:9.5px;color:var(--muted);font-family:'DM Mono',monospace;}
+.day-title{font-size:13px;font-weight:600;color:var(--text);margin-top:1px;}
+.day-card.done .day-title{color:var(--muted);text-decoration:line-through;text-decoration-color:var(--g);}
+.chip{font-size:9.5px;padding:2px 7px;border-radius:20px;font-family:'DM Mono',monospace;white-space:nowrap;flex-shrink:0;}
+.check-btn{width:26px;height:26px;border-radius:50%;border:1.5px solid var(--border);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;color:transparent;font-size:12px;}
+.day-card.done .check-btn{background:var(--g);border-color:var(--g);color:#0a0a0f;}
+.day-details{display:none;margin-top:11px;padding-top:11px;border-top:1px solid var(--border);}
+.day-card.expanded .day-details{display:block;}
+.detail-row{display:flex;gap:7px;margin-bottom:7px;align-items:flex-start;}
+.detail-icon{font-size:12px;margin-top:1px;flex-shrink:0;}
+.detail-text{font-size:12px;color:#a0a0c0;line-height:1.5;}
+.detail-text strong{color:var(--text);font-weight:600;}
+.pyq-badge{display:inline-flex;align-items:center;gap:4px;border-radius:4px;padding:2px 7px;font-size:9.5px;font-family:'DM Mono',monospace;margin-top:7px;}
+
+/* CHIP & PHASE COLORS */
+/* NEET Chem */
+.ph-bond{background:rgba(218,119,242,.15);color:var(--p);}
+.ch-bond{background:rgba(218,119,242,.1);color:var(--p);border:1px solid rgba(218,119,242,.2);}
+.ph-phys{background:rgba(247,183,49,.15);color:var(--y);}
+.ch-phys{background:rgba(247,183,49,.1);color:var(--y);border:1px solid rgba(247,183,49,.2);}
+.ph-org{background:rgba(255,77,109,.15);color:var(--r);}
+.ch-org{background:rgba(255,77,109,.1);color:var(--r);border:1px solid rgba(255,77,109,.2);}
+.ph-inorg{background:rgba(116,192,252,.15);color:var(--b);}
+.ch-inorg{background:rgba(116,192,252,.1);color:var(--b);border:1px solid rgba(116,192,252,.2);}
+/* Bio */
+.ph-gen{background:rgba(218,119,242,.15);color:var(--p);}
+.ch-gen{background:rgba(218,119,242,.1);color:var(--p);border:1px solid rgba(218,119,242,.2);}
+.ph-phy{background:rgba(247,183,49,.15);color:var(--y);}
+.ch-phy{background:rgba(247,183,49,.1);color:var(--y);border:1px solid rgba(247,183,49,.2);}
+.ph-rep{background:rgba(255,77,109,.15);color:var(--r);}
+.ch-rep{background:rgba(255,77,109,.1);color:var(--r);border:1px solid rgba(255,77,109,.2);}
+.ph-eco{background:rgba(56,217,169,.15);color:var(--g);}
+.ch-eco{background:rgba(56,217,169,.1);color:var(--g);border:1px solid rgba(56,217,169,.2);}
+/* shared mock */
+.ph-mock{background:rgba(255,255,255,.07);color:var(--w);}
+.ch-mock{background:rgba(255,255,255,.06);color:var(--w);border:1px solid rgba(255,255,255,.1);}
+.pyq-r{background:rgba(255,77,109,.08);border:1px solid rgba(255,77,109,.2);color:var(--r);}
+.pyq-y{background:rgba(247,183,49,.08);border:1px solid rgba(247,183,49,.2);color:var(--y);}
+.pyq-g{background:rgba(56,217,169,.08);border:1px solid rgba(56,217,169,.2);color:var(--g);}
+.pyq-b{background:rgba(116,192,252,.08);border:1px solid rgba(116,192,252,.2);color:var(--b);}
+.pyq-p{background:rgba(218,119,242,.08);border:1px solid rgba(218,119,242,.2);color:var(--p);}
+.pyq-w{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.1);color:var(--w);}
+</style>
+</head>
+<body>
+
+<div class="tab-nav">
+  <button class="tab-btn active" onclick="switchTab(0)">🧪 NEET CHEM</button>
+  <button class="tab-btn t2" onclick="switchTab(1)">🧬 BIO CUET</button>
+  <button class="tab-btn t3" onclick="switchTab(2)">⚗️ CUET CHEM</button>
+</div>
+
+<!-- ══════════════ TAB 1: NEET CHEMISTRY ══════════════ -->
+<div class="panel active" id="panel-0">
+  <div class="header-label" style="color:var(--r)">Harsh · NEET 2026</div>
+  <h1>NEET<br><span style="color:var(--r)">CHEM</span></h1>
+  <p class="sub">21 days · Blank → Battle-ready<br>Run parallel with Physics sprint</p>
+  <div class="exam-badge" style="background:rgba(255,77,109,.1);border:1px solid rgba(255,77,109,.3);color:var(--r)">
+    <div class="dot" style="background:var(--r)"></div>NEET · 03 MAY 2026
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-label"><span>PROGRESS</span><span id="p0-text">0 / 21 days</span></div>
+    <div class="progress-bar"><div class="progress-fill" id="p0-fill" style="width:0%;background:linear-gradient(90deg,var(--r),var(--p))"></div></div>
+  </div>
+
+  <div class="routine-card">
+    <div class="routine-title">DAILY STRUCTURE</div>
+    <div class="routine-row"><div class="routine-time" style="color:var(--p)">1.5 hrs</div><div class="routine-task">⚛️ Physics sprint (Manish Raj Sir)</div></div>
+    <div class="routine-row"><div class="routine-time" style="color:var(--r)">1 hr</div><div class="routine-task">🧪 Chemistry (NCERT + PYQs)</div></div>
+    <div class="routine-row"><div class="routine-time" style="color:var(--y)">30 min</div><div class="routine-task">📋 Formula/reaction sheet revision</div></div>
+    <div class="bio-anchor">🌿 <span>9 PM Bio anchor (45 min) — non-negotiable every day.</span></div>
+  </div>
+
+  <div id="days-0"></div>
+</div>
+
+<!-- ══════════════ TAB 2: BIO CUET ══════════════ -->
+<div class="panel" id="panel-1">
+  <div class="header-label" style="color:var(--g)">Harsh · CUET 2026</div>
+  <h1>BIO<br><span style="color:var(--g)">CUET</span></h1>
+  <p class="sub">28 days · Apr 13 → May 10<br>Your primary weapon. Non-negotiable.</p>
+  <div class="exam-badge" style="background:rgba(56,217,169,.1);border:1px solid rgba(56,217,169,.3);color:var(--g)">
+    <div class="dot" style="background:var(--g)"></div>CUET · 11 MAY 2026
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-label"><span>PROGRESS</span><span id="p1-text">0 / 28 days</span></div>
+    <div class="progress-bar"><div class="progress-fill" id="p1-fill" style="width:0%;background:linear-gradient(90deg,var(--g),var(--b))"></div></div>
+  </div>
+
+  <div class="routine-card">
+    <div class="routine-title">DAILY ANCHOR</div>
+    <div class="routine-row"><div class="routine-time" style="color:var(--g)">9 PM</div><div class="routine-task">🧬 45 min Biology — every single night</div></div>
+    <div class="routine-row"><div class="routine-time" style="color:var(--y)">Morning</div><div class="routine-task">📖 NCERT reading + concept mapping</div></div>
+    <div class="routine-row"><div class="routine-time" style="color:var(--b)">Afternoon</div><div class="routine-task">📝 PYQs + MCQ practice</div></div>
+  </div>
+
+  <div id="days-1"></div>
+</div>
+
+<!-- ══════════════ TAB 3: CUET CHEMISTRY ══════════════ -->
+<div class="panel" id="panel-2">
+  <div class="header-label" style="color:var(--b)">Harsh · CUET 2026</div>
+  <h1>CUET<br><span style="color:var(--b)">CHEM</span></h1>
+  <p class="sub">20 days · May 11 → May 30<br>Class 12 NCERT only. Post-NEET sprint.</p>
+  <div class="exam-badge" style="background:rgba(116,192,252,.1);border:1px solid rgba(116,192,252,.3);color:var(--b)">
+    <div class="dot" style="background:var(--b)"></div>CUET · MAY 11–31
+  </div>
+
+  <div class="progress-wrap">
+    <div class="progress-label"><span>PROGRESS</span><span id="p2-text">0 / 20 days</span></div>
+    <div class="progress-bar"><div class="progress-fill" id="p2-fill" style="width:0%;background:linear-gradient(90deg,var(--b),var(--g))"></div></div>
+  </div>
+
+  <div class="routine-card">
+    <div class="routine-title">DAILY STRUCTURE</div>
+    <div class="routine-row"><div class="routine-time" style="color:var(--b)">2 hrs</div><div class="routine-task">⚗️ Chemistry (NCERT + CUET PYQs)</div></div>
+    <div class="routine-row"><div class="routine-time" style="color:var(--g)">2 hrs</div><div class="routine-task">🧬 Biology revision (ongoing)</div></div>
+    <div class="routine-row"><div class="routine-time" style="color:var(--y)">30 min</div><div class="routine-task">📋 English reading comprehension</div></div>
+  </div>
+
+  <div id="days-2"></div>
+</div>
+
+<script>
+// ── DATA ──────────────────────────────────────────────
+
+const NEET_CHEM_START = new Date('2026-04-13');
+const BIO_START       = new Date('2026-04-13');
+const CUET_CHEM_START = new Date('2026-05-11');
+
+const neetChem = [
+  // Chemical Bonding
+  {phase:'CHEMICAL BONDING',phClass:'ph-bond',chClass:'ch-bond',chip:'Chem Bonding',pyqClass:'pyq-p',
+   title:'Ionic & Covalent Bonding + Lewis Structure',
+   video:'NCERT Ch 4 (Class 11) + any PW one-shot on Chemical Bonding',
+   topics:'Ionic bond · Covalent bond · Lewis dot structures · Formal charge · Electronegativity',
+   pyq:'15 PYQs on bonding basics'},
+  {phase:null,phClass:'ph-bond',chClass:'ch-bond',chip:'Chem Bonding',pyqClass:'pyq-p',
+   title:'Hybridisation + VSEPR + MOT',
+   video:'Continue Chemical Bonding one-shot',
+   topics:'sp sp2 sp3 hybridisation · VSEPR theory · Bond angle · MOT (O₂ & N₂ must know) · H-bonding',
+   pyq:'20 PYQs — hybridisation & geometry questions repeat every year'},
+  {phase:null,phClass:'ph-bond',chClass:'ch-bond',chip:'Chem Bonding',pyqClass:'pyq-p',
+   title:'Chemical Bonding — PYQ Blitz + Revision',
+   video:'No new video — revision + MCQs',
+   topics:'Review hybridisation table · VSEPR shapes · Bond order from MOT · Dipole moment trends',
+   pyq:'25 mixed Chemical Bonding PYQs (2015–2024)'},
+
+  // Physical Chemistry
+  {phase:'PHYSICAL CHEMISTRY',phClass:'ph-phys',chClass:'ch-phys',chip:'Physical Chem',pyqClass:'pyq-y',
+   title:'Mole Concept + Stoichiometry',
+   video:'NCERT Ch 1 (Class 11) + PW one-shot on Some Basic Concepts',
+   topics:'Mole · Avogadro\'s number · Molar mass · % composition · Limiting reagent · Molarity',
+   pyq:'15 numericals from PYQs — mostly straightforward'},
+  {phase:null,phClass:'ph-phys',chClass:'ch-phys',chip:'Equilibrium',pyqClass:'pyq-y',
+   title:'Equilibrium — Kc, Kp + Le Chatelier',
+   video:'PW one-shot on Equilibrium (Class 11)',
+   topics:'Law of mass action · Kc & Kp · Relationship between Kc & Kp · Le Chatelier\'s principle · Factors affecting equilibrium',
+   pyq:'20 PYQs — Equilibrium is the highest weightage Physical Chem chapter'},
+  {phase:null,phClass:'ph-phys',chClass:'ch-phys',chip:'Equilibrium',pyqClass:'pyq-y',
+   title:'Ionic Equilibrium — pH + Buffer + Ksp',
+   video:'Continue Equilibrium one-shot (ionic part)',
+   topics:'Weak acid/base dissociation · pH calculations · Buffer solutions · Ksp · Common ion effect',
+   pyq:'20 PYQs — pH numericals appear every year'},
+  {phase:null,phClass:'ph-phys',chClass:'ch-phys',chip:'Physical Chem',pyqClass:'pyq-y',
+   title:'Chemical Kinetics',
+   video:'PW one-shot on Chemical Kinetics (Class 12)',
+   topics:'Rate law · Order of reaction · Half-life · Arrhenius equation · First order integrated rate law',
+   pyq:'15 PYQs — mostly formula-based, quick to solve'},
+  {phase:null,phClass:'ph-phys',chClass:'ch-phys',chip:'Physical Chem',pyqClass:'pyq-y',
+   title:'Electrochemistry',
+   video:'PW one-shot on Electrochemistry (Class 12)',
+   topics:'Nernst equation · EMF · Electrolysis (Faraday\'s laws) · Conductance · Galvanic cell',
+   pyq:'15 PYQs — Nernst equation numericals are sure shot'},
+
+  // Organic Chemistry
+  {phase:'ORGANIC CHEMISTRY',phClass:'ph-org',chClass:'ch-org',chip:'Organic',pyqClass:'pyq-r',
+   title:'GOC — Inductive, Resonance, Hyperconjugation',
+   video:'PW one-shot on General Organic Chemistry',
+   topics:'Inductive effect · Resonance · Hyperconjugation · Carbocation/carbanion stability · Reaction intermediates',
+   pyq:'20 PYQs — GOC is the highest weightage Organic chapter in NEET'},
+  {phase:null,phClass:'ph-org',chClass:'ch-org',chip:'Organic',pyqClass:'pyq-r',
+   title:'Hydrocarbons — Alkanes, Alkenes, Alkynes',
+   video:'PW one-shot on Hydrocarbons (Class 11)',
+   topics:'Nomenclature · Markovnikov\'s rule · E2/SN2 basics · Addition reactions · Ozonolysis · Acidic character of alkynes',
+   pyq:'20 PYQs on hydrocarbons'},
+  {phase:null,phClass:'ph-org',chClass:'ch-org',chip:'Organic',pyqClass:'pyq-r',
+   title:'Haloalkanes + Alcohols, Phenols, Ethers',
+   video:'PW one-shot on Haloalkanes + Alcohol chapter',
+   topics:'SN1/SN2 · Lucas test · Victor Meyer test · Acidity of phenols · Williamson synthesis',
+   pyq:'15 PYQs — mostly named reactions & tests'},
+  {phase:null,phClass:'ph-org',chClass:'ch-org',chip:'Organic',pyqClass:'pyq-r',
+   title:'Aldehydes, Ketones + Carboxylic Acids',
+   video:'PW one-shot on Carbonyl Compounds (Class 12)',
+   topics:'Nucleophilic addition · Aldol condensation · Cannizzaro · Clemmensen · Acidic strength order · Acidity of COOH',
+   pyq:'20 PYQs — Carbonyl section is heavily tested'},
+  {phase:null,phClass:'ph-org',chClass:'ch-org',chip:'Organic',pyqClass:'pyq-r',
+   title:'Amines + Biomolecules',
+   video:'PW one-shot on Amines + Biomolecules (Class 12)',
+   topics:'Basic nature of amines · Hoffmann bromamide · Carbohydrates (reducing/non-reducing) · DNA vs RNA · Enzymes · Vitamins',
+   pyq:'15 PYQs — Biomolecules mostly direct NCERT memory'},
+
+  // Inorganic Chemistry
+  {phase:'INORGANIC CHEMISTRY',phClass:'ph-inorg',chClass:'ch-inorg',chip:'Inorganic',pyqClass:'pyq-b',
+   title:'Periodic Trends + s-Block Overview',
+   video:'NCERT Class 11 Ch 3 + 10 (quick read, mostly NCERT facts)',
+   topics:'IE · EA · EN trends · Diagonal relationship · Anomalous behaviour of Li & Be · Uses of NaOH, Na₂CO₃',
+   pyq:'10 PYQs — purely NCERT fact-based, fast to score'},
+  {phase:null,phClass:'ph-inorg',chClass:'ch-inorg',chip:'Inorganic',pyqClass:'pyq-b',
+   title:'p-Block Elements (Groups 15, 16, 17, 18)',
+   video:'PW one-shot on p-Block (Class 12)',
+   topics:'Oxoacids of N, P, S · Allotropes of P & S · Interhalogen compounds · XeF₂ XeF₄ structure · Noble gas compounds',
+   pyq:'20 PYQs — p-Block is the most repeated Inorganic chapter'},
+  {phase:null,phClass:'ph-inorg',chClass:'ch-inorg',chip:'Coordination',pyqClass:'pyq-b',
+   title:'Coordination Compounds',
+   video:'PW one-shot on Coordination Compounds (Class 12)',
+   topics:'IUPAC nomenclature · EAN · Isomerism (geometric, optical) · Crystal Field Theory · Spectrochemical series · Color',
+   pyq:'20 PYQs — Coordination Compounds is always 3–5 questions in NEET'},
+
+  // Mock
+  {phase:'MOCK',phClass:'ph-mock',chClass:'ch-mock',chip:'Mock',pyqClass:'pyq-w',
+   title:'Full Chemistry Mock #1 + Analysis',
+   video:'No video — exam simulation',
+   topics:'45 Chemistry MCQs, timed (45 min). After: mark every wrong answer with chapter name and reason.',
+   pyq:'Target: 28+ correct out of 45'},
+  {phase:null,phClass:'ph-mock',chClass:'ch-mock',chip:'Mock',pyqClass:'pyq-w',
+   title:'Full Chemistry Mock #2 + Final Revision',
+   video:'No video — final sprint',
+   topics:'Second mock. Then revise your 2 weakest chapters\' formula/reaction sheets. Done.',
+   pyq:'Target: 30+ correct · Stop studying new things tonight'},
+];
+
+const bioCuet = [
+  // Week 1: Genetics & Evolution
+  {phase:'GENETICS & EVOLUTION',phClass:'ph-gen',chClass:'ch-gen',chip:'Genetics',pyqClass:'pyq-p',
+   title:'Mendelian Genetics — Laws + Ratios',
+   video:'NCERT Ch 5 (Class 12) — read carefully, not skim',
+   topics:'Mendel\'s laws · Monohybrid & dihybrid crosses · Law of dominance · Segregation · Independent assortment · Punnett square',
+   pyq:'15 CUET PYQs on Mendelian genetics'},
+  {phase:null,phClass:'ph-gen',chClass:'ch-gen',chip:'Genetics',pyqClass:'pyq-p',
+   title:'Chromosomal Theory + Linkage + Sex Determination',
+   video:'Continue NCERT Ch 5',
+   topics:'Chromosomal theory of inheritance · Linkage · Crossing over · Morgan\'s experiment · Sex determination (XY, ZW, XO)',
+   pyq:'15 PYQs on linkage & sex determination'},
+  {phase:null,phClass:'ph-gen',chClass:'ch-gen',chip:'Genetics',pyqClass:'pyq-p',
+   title:'Mutation + Genetic Disorders',
+   video:'NCERT Ch 5 end + Ch 6 start',
+   topics:'Types of mutation · Down syndrome · Klinefelter · Turner · Sickle cell anaemia · Haemophilia · Colour blindness',
+   pyq:'15 PYQs on disorders — mostly fact-based, quick marks'},
+  {phase:null,phClass:'ph-gen',chClass:'ch-gen',chip:'Mol. Biology',pyqClass:'pyq-p',
+   title:'DNA Structure + Replication',
+   video:'NCERT Ch 6 (Molecular Basis of Inheritance)',
+   topics:'Watson-Crick model · B-DNA · Chargaff\'s rules · Semiconservative replication · Meselson-Stahl · Replication enzymes',
+   pyq:'15 PYQs on DNA structure & replication'},
+  {phase:null,phClass:'ph-gen',chClass:'ch-gen',chip:'Mol. Biology',pyqClass:'pyq-p',
+   title:'Transcription + Translation + Regulation',
+   video:'Continue NCERT Ch 6',
+   topics:'Transcription (template strand) · mRNA processing · Genetic code properties · Translation · Lac operon · Lac repressor',
+   pyq:'20 PYQs — genetic code & lac operon appear every year'},
+  {phase:null,phClass:'ph-gen',chClass:'ch-gen',chip:'Evolution',pyqClass:'pyq-p',
+   title:'Evolution — Origin of Life + Theories',
+   video:'NCERT Ch 7 (Evolution)',
+   topics:'Origin of life · Miller-Urey · Oparin-Haldane · Lamarck · Darwin · Hardy-Weinberg · Natural selection types',
+   pyq:'15 PYQs on evolution theories'},
+  {phase:null,phClass:'ph-gen',chClass:'ch-gen',chip:'Genetics',pyqClass:'pyq-p',
+   title:'Genetics & Evolution — Full Revision Day',
+   video:'No new reading — MCQ sprint',
+   topics:'Revise all Genetics + Evolution NCERT diagrams. DNA replication flowchart, monohybrid cross, lac operon diagram.',
+   pyq:'30 mixed Genetics + Evolution CUET PYQs — timed'},
+
+  // Week 2: Human Physiology
+  {phase:'HUMAN PHYSIOLOGY',phClass:'ph-phy',chClass:'ch-phy',chip:'Physiology',pyqClass:'pyq-y',
+   title:'Digestion & Absorption',
+   video:'NCERT Ch 16 (Class 11)',
+   topics:'GI tract structure · Enzymes (pepsin, trypsin, lipase) · Absorption site of nutrients · Digestive disorders',
+   pyq:'12 PYQs on digestion'},
+  {phase:null,phClass:'ph-phy',chClass:'ch-phy',chip:'Physiology',pyqClass:'pyq-y',
+   title:'Breathing & Exchange of Gases',
+   video:'NCERT Ch 17',
+   topics:'Mechanism of breathing · Lung volumes (TV, IRV, ERV, RV) · Oxygen-Hb dissociation curve · CO₂ transport · Disorders',
+   pyq:'15 PYQs — lung volumes and CO₂ transport come up often'},
+  {phase:null,phClass:'ph-phy',chClass:'ch-phy',chip:'Physiology',pyqClass:'pyq-y',
+   title:'Body Fluids & Circulation',
+   video:'NCERT Ch 18',
+   topics:'Blood composition · Blood groups (ABO, Rh) · Cardiac cycle · ECG · Blood pressure · Lymph · Disorders',
+   pyq:'15 PYQs — cardiac cycle steps are must-know'},
+  {phase:null,phClass:'ph-phy',chClass:'ch-phy',chip:'Physiology',pyqClass:'pyq-y',
+   title:'Excretory Products & Kidney',
+   video:'NCERT Ch 19',
+   topics:'Nephron structure · Ultrafiltration · Selective reabsorption · Countercurrent mechanism · ADH · Dialysis',
+   pyq:'15 PYQs — nephron diagram is a classic CUET question'},
+  {phase:null,phClass:'ph-phy',chClass:'ch-phy',chip:'Physiology',pyqClass:'pyq-y',
+   title:'Locomotion & Nervous System',
+   video:'NCERT Ch 20 + 21',
+   topics:'Skeletal muscle types · Sarcomere structure · Neuron · Resting & action potential · Synapse · Reflex arc',
+   pyq:'15 PYQs on nervous system + muscle'},
+  {phase:null,phClass:'ph-phy',chClass:'ch-phy',chip:'Physiology',pyqClass:'pyq-y',
+   title:'Chemical Coordination — Endocrinology',
+   video:'NCERT Ch 22',
+   topics:'All endocrine glands + hormones + functions · Feedback mechanism · Hyper & hypo disorders · Pituitary (master gland)',
+   pyq:'15 PYQs — hormone-function matching is a favourite CUET format'},
+  {phase:null,phClass:'ph-phy',chClass:'ch-phy',chip:'Physiology',pyqClass:'pyq-y',
+   title:'Human Physiology — Full Revision Day',
+   video:'No new reading — all diagrams & MCQs',
+   topics:'Revise nephron, sarcomere, cardiac cycle, ECG, reflex arc, hormone table. These diagrams = easy marks.',
+   pyq:'30 mixed Physiology CUET PYQs — timed'},
+
+  // Week 3: Reproduction & Cell Biology
+  {phase:'REPRODUCTION & CELL BIO',phClass:'ph-rep',chClass:'ch-rep',chip:'Reproduction',pyqClass:'pyq-r',
+   title:'Sexual Reproduction in Flowering Plants',
+   video:'NCERT Ch 2 (Class 12)',
+   topics:'Male & female gametophyte · Microsporogenesis · Megasporogenesis · Double fertilisation · Endosperm · Seed',
+   pyq:'15 PYQs — double fertilisation is always asked'},
+  {phase:null,phClass:'ph-rep',chClass:'ch-rep',chip:'Reproduction',pyqClass:'pyq-r',
+   title:'Human Reproduction',
+   video:'NCERT Ch 3 (Class 12)',
+   topics:'Male & female reproductive system · Spermatogenesis · Oogenesis · Menstrual cycle · Fertilisation · Implantation',
+   pyq:'15 PYQs on human reproduction'},
+  {phase:null,phClass:'ph-rep',chClass:'ch-rep',chip:'Reproduction',pyqClass:'pyq-r',
+   title:'Reproductive Health + Birth Control',
+   video:'NCERT Ch 4',
+   topics:'Contraceptive methods · MTP · STDs · Infertility · ART (IVF, GIFT, ZIFT) · Amniocentesis',
+   pyq:'10 PYQs — mostly factual, fast to cover'},
+  {phase:null,phClass:'ph-rep',chClass:'ch-rep',chip:'Cell Biology',pyqClass:'pyq-r',
+   title:'Cell Cycle + Mitosis + Meiosis',
+   video:'NCERT Ch 10 (Class 11)',
+   topics:'Phases of mitosis & meiosis · Significance of each · Chiasmata · Crossing over · Checkpoints · Cancer link',
+   pyq:'15 PYQs — mitosis vs meiosis comparison is CUET favourite'},
+  {phase:null,phClass:'ph-rep',chClass:'ch-rep',chip:'Cell Biology',pyqClass:'pyq-r',
+   title:'Biomolecules — Carbs, Proteins, Lipids, Enzymes',
+   video:'NCERT Ch 9 (Class 11)',
+   topics:'Monosaccharides · Amino acids · Peptide bond · Primary/secondary/tertiary structure · Enzyme kinetics · Km',
+   pyq:'15 PYQs on biomolecules'},
+  {phase:null,phClass:'ph-rep',chClass:'ch-rep',chip:'Biotechnology',pyqClass:'pyq-r',
+   title:'Biotechnology — Principles & Processes',
+   video:'NCERT Ch 11 (Class 12)',
+   topics:'Restriction enzymes · Gel electrophoresis · PCR · Recombinant DNA · Cloning vectors · Transformation',
+   pyq:'15 PYQs — PCR steps and restriction enzyme questions repeat'},
+  {phase:null,phClass:'ph-rep',chClass:'ch-rep',chip:'Biotechnology',pyqClass:'pyq-r',
+   title:'Biotechnology — Applications',
+   video:'NCERT Ch 12 (Class 12)',
+   topics:'Insulin production · Bt crops · Golden rice · Gene therapy · ELISA · DNA fingerprinting · GM organisms',
+   pyq:'15 PYQs on biotech applications'},
+
+  // Week 4: Ecology
+  {phase:'ECOLOGY & FINAL REVISION',phClass:'ph-eco',chClass:'ch-eco',chip:'Ecology',pyqClass:'pyq-g',
+   title:'Organisms & Populations',
+   video:'NCERT Ch 13 (Class 12)',
+   topics:'Population attributes · Growth models (logistic/exponential) · Age pyramid · Natality/mortality · Species interactions',
+   pyq:'15 PYQs — logistic vs exponential growth is a sure shot'},
+  {phase:null,phClass:'ph-eco',chClass:'ch-eco',chip:'Ecology',pyqClass:'pyq-g',
+   title:'Ecosystem — Energy Flow + Nutrient Cycles',
+   video:'NCERT Ch 14',
+   topics:'Food chain & web · Ecological pyramids · Productivity · 10% law · Carbon cycle · Nitrogen cycle',
+   pyq:'15 PYQs — 10% law and pyramid types are classic'},
+  {phase:null,phClass:'ph-eco',chClass:'ch-eco',chip:'Ecology',pyqClass:'pyq-g',
+   title:'Biodiversity + Conservation',
+   video:'NCERT Ch 15',
+   topics:'Alpha/beta/gamma diversity · Hotspots · IUCN categories · Ex-situ & in-situ conservation · Sacred groves · Biosphere reserves',
+   pyq:'15 PYQs — hotspot names and conservation types repeat'},
+  {phase:null,phClass:'ph-eco',chClass:'ch-eco',chip:'Ecology',pyqClass:'pyq-g',
+   title:'Environmental Issues',
+   video:'NCERT Ch 16 (Class 12) — quick read',
+   topics:'Air pollution · Ozone depletion (Montreal protocol) · Global warming · Eutrophication · Biomagnification · E-waste',
+   pyq:'10 PYQs — mostly NCERT facts, 30 min max'},
+  {phase:null,phClass:'ph-eco',chClass:'ch-eco',chip:'Revision',pyqClass:'pyq-g',
+   title:'Full Bio Revision — Genetics + Physiology',
+   video:'No new reading — diagram sprint',
+   topics:'Revise: DNA replication, lac operon, nephron, cardiac cycle, sarcomere, plant reproduction diagrams.',
+   pyq:'30 PYQs mixed — Genetics + Physiology'},
+  {phase:null,phClass:'ph-eco',chClass:'ch-eco',chip:'Revision',pyqClass:'pyq-g',
+   title:'Full Bio Revision — Ecology + Biotech',
+   video:'No new reading — MCQ sprint',
+   topics:'Revise: food chains, pyramids, hotspot list, PCR steps, Bt crops, DNA fingerprinting.',
+   pyq:'30 PYQs mixed — Ecology + Biotechnology'},
+  {phase:null,phClass:'ph-eco',chClass:'ch-eco',chip:'Mock',pyqClass:'pyq-g',
+   title:'Full Biology Mock + Weak Chapter Revision',
+   video:'No video — full mock',
+   topics:'50 Biology MCQs timed (60 min). Analyse wrong answers. Final revision of 2 weakest chapters only.',
+   pyq:'Target: 38+ correct out of 50'},
+  {phase:null,phClass:'ph-eco',chClass:'ch-eco',chip:'Mock',pyqClass:'pyq-g',
+   title:'Final Biology Blitz — Day Before CUET Bio',
+   video:'No new content — revision only',
+   topics:'Light revision of all NCERT diagrams. Read chapter summaries. No new MCQs. Sleep by 10 PM.',
+   pyq:'You\'re ready. Trust the process. 🌿'},
+];
+
+const cuetChem = [
+  // Electrochemistry
+  {phase:'PHYSICAL CHEMISTRY',phClass:'ph-phys',chClass:'ch-phys',chip:'Electrochemistry',pyqClass:'pyq-y',
+   title:'Electrochemistry — Cells & EMF',
+   video:'NCERT Ch 3 (Class 12) + PW one-shot',
+   topics:'Electrochemical cell · EMF · Nernst equation · Standard electrode potential · Galvanic vs electrolytic cell',
+   pyq:'15 CUET PYQs on electrochemistry'},
+  {phase:null,phClass:'ph-phys',chClass:'ch-phys',chip:'Electrochemistry',pyqClass:'pyq-y',
+   title:'Electrolysis + Faraday\'s Laws + Conductance',
+   video:'Continue NCERT Ch 3',
+   topics:'Faraday\'s first & second law · Kohlrausch\'s law · Equivalent conductance · Electrolysis applications',
+   pyq:'15 CUET PYQs — numericals on Faraday\'s laws'},
+
+  // Chemical Kinetics
+  {phase:null,phClass:'ph-phys',chClass:'ch-phys',chip:'Chemical Kinetics',pyqClass:'pyq-y',
+   title:'Chemical Kinetics — Rate Law + Order',
+   video:'NCERT Ch 4 (Class 12)',
+   topics:'Rate law · Order vs molecularity · Integrated rate equations · Half-life · Arrhenius equation · Activation energy',
+   pyq:'15 CUET PYQs on kinetics — mostly formula-based'},
+
+  // Coordination Compounds
+  {phase:'INORGANIC CHEMISTRY',phClass:'ph-inorg',chClass:'ch-inorg',chip:'Coordination',pyqClass:'pyq-b',
+   title:'Coordination Compounds — Nomenclature + Bonding',
+   video:'NCERT Ch 9 (Class 12) + PW one-shot',
+   topics:'IUPAC names · EAN rule · VBT · Crystal Field Theory · Spectrochemical series · Colour · Magnetic properties',
+   pyq:'15 CUET PYQs — naming and CFT questions are direct NCERT'},
+  {phase:null,phClass:'ph-inorg',chClass:'ch-inorg',chip:'Coordination',pyqClass:'pyq-b',
+   title:'Coordination — Isomerism + Applications',
+   video:'Continue NCERT Ch 9',
+   topics:'Geometric isomerism · Optical isomerism · Linkage isomerism · Biologically important complexes (haemoglobin, chlorophyll)',
+   pyq:'15 PYQs on isomerism in coordination compounds'},
+
+  // p-Block
+  {phase:null,phClass:'ph-inorg',chClass:'ch-inorg',chip:'p-Block',pyqClass:'pyq-b',
+   title:'p-Block — Group 15 & 16 (N, P, O, S)',
+   video:'NCERT Ch 7 (Class 12)',
+   topics:'Allotropes of P & S · Oxoacids of N & P · SO₂ & SO₃ · Ozone structure · Anomalous behaviour of N & O',
+   pyq:'15 CUET PYQs on p-block elements'},
+  {phase:null,phClass:'ph-inorg',chClass:'ch-inorg',chip:'p-Block',pyqClass:'pyq-b',
+   title:'p-Block — Group 17 & 18 (Halogens + Noble Gases)',
+   video:'Continue NCERT Ch 7 + Ch 8 (d & f block quick read)',
+   topics:'Interhalogen compounds · Bleaching powder · HF anomaly · XeF₂ XeF₄ structure · d-block: colour & magnetic properties',
+   pyq:'12 PYQs on halogens + noble gases'},
+
+  // Organic Chemistry
+  {phase:'ORGANIC CHEMISTRY',phClass:'ph-org',chClass:'ch-org',chip:'Haloalkanes',pyqClass:'pyq-r',
+   title:'Haloalkanes & Haloarenes',
+   video:'NCERT Ch 10 (Class 12)',
+   topics:'SN1 & SN2 mechanisms · Nucleophilicity · Reactivity order · Aryl halides (less reactive) · Uses of important halogen compounds',
+   pyq:'12 CUET PYQs on haloalkanes'},
+  {phase:null,phClass:'ph-org',chClass:'ch-org',chip:'Alcohols',pyqClass:'pyq-r',
+   title:'Alcohols, Phenols & Ethers',
+   video:'NCERT Ch 11 (Class 12)',
+   topics:'Acidity order (phenol > alcohol) · Lucas test · Victor Meyer test · Williamson synthesis · Kolbe & Reimer-Tiemann reactions',
+   pyq:'12 CUET PYQs on alcohols & phenols'},
+  {phase:null,phClass:'ph-org',chClass:'ch-org',chip:'Carbonyl',pyqClass:'pyq-r',
+   title:'Aldehydes, Ketones & Carboxylic Acids',
+   video:'NCERT Ch 12 (Class 12)',
+   topics:'Nucleophilic addition · Aldol · Cannizzaro · Clemmensen · Wolf-Kishner · Acidity of carboxylic acids · Fischer esterification',
+   pyq:'15 CUET PYQs — carbonyl reactions appear every year'},
+  {phase:null,phClass:'ph-org',chClass:'ch-org',chip:'Amines',pyqClass:'pyq-r',
+   title:'Amines + Biomolecules + Polymers',
+   video:'NCERT Ch 13 + 14 (Class 12)',
+   topics:'Basicity of amines · Hoffmann bromamide · Diazonium salts · Carbohydrates · Proteins · Nucleic acids · Polymer types',
+   pyq:'15 CUET PYQs — mostly direct NCERT, fast to score'},
+
+  // Surface + Solutions (Physical)
+  {phase:null,phClass:'ph-phys',chClass:'ch-phys',chip:'Solutions',pyqClass:'pyq-y',
+   title:'Solutions + Colligative Properties',
+   video:'NCERT Ch 2 (Class 12)',
+   topics:'Molality · Henry\'s law · Raoult\'s law · Elevation of BP · Depression of FP · Osmotic pressure · Van\'t Hoff factor',
+   pyq:'12 CUET PYQs — colligative property numericals'},
+
+  // Mock
+  {phase:'MOCK & FINAL',phClass:'ph-mock',chClass:'ch-mock',chip:'Mock',pyqClass:'pyq-w',
+   title:'Full CUET Chemistry Mock #1',
+   video:'No video — exam simulation',
+   topics:'50 Chemistry MCQs, timed (60 min). Analyse every wrong answer. Identify your weakest chapter.',
+   pyq:'Target: 35+ correct out of 50'},
+  {phase:null,phClass:'ph-mock',chClass:'ch-mock',chip:'Mock',pyqClass:'pyq-w',
+   title:'Full Mock #2 + Final Revision',
+   video:'No video — done!',
+   topics:'Second mock. Final revision of 2 weakest chapters only. Read NCERT summaries of all chapters.',
+   pyq:'Target: 38+ correct · You got this 💪'},
+];
+
+// ── RENDER ENGINE ─────────────────────────────────────
+
+function key(tab) { return ['nc','bio','cc'][tab]; }
+
+function loadDone(tab) {
+  try { return JSON.parse(localStorage.getItem('harsh_'+key(tab)) || '[]'); } catch(e) { return []; }
+}
+function saveDone(tab, arr) {
+  try { localStorage.setItem('harsh_'+key(tab), JSON.stringify(arr)); } catch(e) {}
+}
+
+function dateStr(base, offset) {
+  const d = new Date(base); d.setDate(d.getDate()+offset);
+  return d.toLocaleDateString('en-IN',{day:'numeric',month:'short',weekday:'short'});
+}
+
+function renderTab(tabIdx, data, startDate, totalDays) {
+  const done = loadDone(tabIdx);
+  const today = new Date(); today.setHours(0,0,0,0);
+  let html = ''; let lastPhase = null;
+
+  data.forEach((d, i) => {
+    const dd = new Date(startDate); dd.setDate(dd.getDate()+i);
+    const isToday = dd.getTime()===today.getTime();
+    const isDone = done.includes(i);
+
+    if (d.phase && d.phase!==lastPhase) {
+      lastPhase=d.phase;
+      html+=`<div class="phase-header"><span class="phase-tag ${d.phClass}">${d.phase}</span><div class="phase-line"></div></div>`;
+    }
+
+    const cls = isDone?'done':(isToday?'today':'');
+    html+=`<div class="day-card ${cls}" id="c${tabIdx}-${i}" onclick="toggle(${tabIdx},${i})">
+      <div class="day-top">
+        <div class="day-left">
+          <div class="day-num">${String(i+1).padStart(2,'0')}</div>
+          <div>
+            <div class="day-date">${dateStr(startDate,i)}${isToday?' · TODAY':''}</div>
+            <div class="day-title">${d.title}</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px">
+          <span class="chip ${d.chClass}">${d.chip}</span>
+          <button class="check-btn" onclick="event.stopPropagation();toggleDone(${tabIdx},${i})">${isDone?'✓':''}</button>
+        </div>
+      </div>
+      <div class="day-details">
+        <div class="detail-row"><div class="detail-icon">📺</div><div class="detail-text"><strong>Video:</strong> ${d.video}</div></div>
+        <div class="detail-row"><div class="detail-icon">📌</div><div class="detail-text"><strong>Topics:</strong> ${d.topics}</div></div>
+        <div class="pyq-badge ${d.pyqClass}">⚡ ${d.pyq}</div>
+      </div>
+    </div>`;
+  });
+
+  document.getElementById('days-'+tabIdx).innerHTML=html;
+  updateProg(tabIdx, done.length, totalDays);
+}
+
+function updateProg(t, n, total) {
+  document.getElementById('p'+t+'-text').textContent=`${n} / ${total} days`;
+  document.getElementById('p'+t+'-fill').style.width=(n/total*100)+'%';
+}
+
+function toggle(t, i) { document.getElementById('c'+t+'-'+i).classList.toggle('expanded'); }
+
+function toggleDone(t, i) {
+  const done=loadDone(t), idx=done.indexOf(i);
+  if(idx===-1) done.push(i); else done.splice(idx,1);
+  saveDone(t,done);
+  const totals=[21,28,20];
+  renderTab(t,[neetChem,bioCuet,cuetChem][t],[NEET_CHEM_START,BIO_START,CUET_CHEM_START][t],totals[t]);
+}
+
+function switchTab(t) {
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',i===t));
+  document.querySelectorAll('.panel').forEach((p,i)=>p.classList.toggle('active',i===t));
+}
+
+// Initial render
+renderTab(0, neetChem, NEET_CHEM_START, 21);
+renderTab(1, bioCuet,  BIO_START,       28);
+renderTab(2, cuetChem, CUET_CHEM_START, 20);
+</script>
+</body>
+</html>
